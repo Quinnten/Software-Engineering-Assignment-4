@@ -4,19 +4,24 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 
-import java.util.Scanner;
-import java.io.FileWriter; 
-import java.io.File; 
-import java.io.IOException;
 import java.lang.Exception;
 import java.util.List;
+import java.util.Scanner;
+
+import java.io.PrintWriter;
+import java.io.FileWriter; 
+import java.io.FileReader; 
+import java.io.BufferedReader; 
+import java.io.BufferedWriter; 
+import java.io.File; 
+import java.io.IOException;
+
 
 public class Model {
     private int id = 0;
     private boolean saved = false;
 
     private static int GlobalID = 1;
-    private static Scanner reader;
     private static File diskFile;
 
     public void save() { 
@@ -24,11 +29,8 @@ public class Model {
         try {
             diskFile = new File("databaseSE.txt");
             //Create a new file to disk if not already
-            if (diskFile.createNewFile()) {
-                System.out.println("File created: " + diskFile.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
+            diskFile.createNewFile();
+
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -50,7 +52,6 @@ public class Model {
                 annoFields.add(f);
             }
         }
-                    System.out.println("Before write");
 
         //Insert a new ID into database
         if (id == 0) {
@@ -61,9 +62,8 @@ public class Model {
                 FileWriter writer = new FileWriter("databaseSE.txt", true);
                 
 
-                writer.write("#ID\n");
-                writer.write(this.id() + "\n");
-
+                writer.write("#ID " + this.id() + "\n");
+                writer.write(clazz.getName());
 
                 for (Field f : annoFields) {
                     writer.write(f.getName() + "\n");
@@ -88,7 +88,26 @@ public class Model {
     }
 
     public static <T> T find(Class<T> c, int id) {
-        throw new UnsupportedOperationException();
+
+        try {
+            Constructor<?> cons = c.getConstructor();
+            Object instance = cons.newInstance();
+
+            Scanner reader = new Scanner(diskFile);
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+
+                if (data.equals("#ID " + id)) {
+                    reader.nextLine();
+                    while (reader.hasNextLine() && data.charAt(0) != '#') {
+                        data = reader.nextLine();
+                        
+                    }
+                }
+            }
+        } catch(Exception e){
+            throw new RuntimeException("Some error occured in destroy");
+        }
     }
 
     public static <T> List<T> all(Class<T> c) {
@@ -96,20 +115,79 @@ public class Model {
         throw new UnsupportedOperationException();
     }
 
+
+
+
+
+
+
     public void destroy() {
-        if (saved) {
-            //Do some work
-            throw new RuntimeException("Can not destory an unsaved file");
-        } else {
-            throw new RuntimeException("Can not destory an unsaved file");
+        if (diskFile == null) {
+            throw new UnsupportedOperationException("Can't delete from a file that doesn't exist");
         }
+
+        ArrayList<String> lines = new ArrayList<>();
+
+        //Throw an error if the instance is not saved.
+        if (!saved) {
+            throw new RuntimeException("Can not destory an unsaved file");
+        } 
+
+        //Copy all the lines in the old file into the new array of lines 
+        try {
+            Scanner reader = new Scanner(diskFile);
+            while (reader.hasNextLine()) {
+                lines.add(reader.nextLine());
+            }
+        } catch(Exception e){
+            throw new RuntimeException("Some error occured in destroy");
+        }
+
+        //Delete the old file and create a new one
+        reset();
+
+        //Write data that's not part of the instance we want to remove to the new file
+        try {
+            FileWriter writer = new FileWriter("databaseSE.txt", true);
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).equals("#ID " + id)){
+                    lines.remove(i);
+                    while (lines.get(i).charAt(0) != '#' && lines.size() > i) {
+                        lines.remove(i);
+                    }
+                }
+
+                writer.write(lines.get(i) + "\n");
+            }
+            writer.close();
+        } catch(Exception e) {
+            throw new RuntimeException("Something happened here");
+        }
+     // Set value of "saved" to false
+        saved = false;
     }
+
+       
+    
+
+
+
+
+
+
 
     public static void reset() {
         try {
-            diskFile.delete();
-            diskFile = new File("databaseSE.txt");
-            diskFile.createNewFile();
+            if (diskFile == null) {
+                diskFile = new File("databaseSE.txt");
+                diskFile.delete();
+                diskFile = new File("databaseSE.txt");
+                diskFile.createNewFile();
+            } else {
+                diskFile.delete();
+                diskFile = new File("databaseSE.txt");
+                diskFile.createNewFile();
+            }
         } catch (Exception e) {
             throw new RuntimeException("Something happened when you tried to delete and create again");
         }
