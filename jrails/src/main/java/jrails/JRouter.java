@@ -34,7 +34,7 @@ public class JRouter {
         String key = verb + path;
         String route = routes.get(key);
 
-        if (!routes.contains(key)) {
+        if (!routes.containsKey(key)) {
             throw new UnsupportedOperationException();
         }
 
