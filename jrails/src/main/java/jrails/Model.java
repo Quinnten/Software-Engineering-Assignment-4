@@ -101,13 +101,14 @@ public class Model {
                     reader.nextLine();
                     while (reader.hasNextLine() && data.charAt(0) != '#') {
                         data = reader.nextLine();
-                        
+
                     }
                 }
             }
         } catch(Exception e){
             throw new RuntimeException("Some error occured in destroy");
         }
+        throw new UnsupportedOperationException();
     }
 
     public static <T> List<T> all(Class<T> c) {
