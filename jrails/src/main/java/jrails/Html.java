@@ -115,7 +115,7 @@ public class Html {
 
     public Html form(String action, Html child) {
         Html html = new Html();
-        html.code = "<form action=\"" + action +" \" accept-charset=\"UTF-8\" method=\"post\">" + child.code + "</form>";
+        html.code = "<form action=\"" + action +"\" accept-charset=\"UTF-8\" method=\"post\">" + child.code + "</form>";
 
         return html;
     }
