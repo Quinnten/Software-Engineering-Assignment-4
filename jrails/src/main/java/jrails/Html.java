@@ -2,7 +2,7 @@ package jrails;
 
 public class Html {
 
-    private String code;
+    private String code = "";
 
     public String toString() {
         return code;
@@ -101,7 +101,7 @@ public class Html {
 
     public Html textarea(String name, Html child) {
         Html html = new Html();
-        html.code = "<a name=\"" + name + "\">" + child.code + "</a>";
+        html.code = "<textarea name=\"" + name + "\">" + child.code + "</textarea>";
 
         return html;
     }
@@ -115,14 +115,14 @@ public class Html {
 
     public Html form(String action, Html child) {
         Html html = new Html();
-        html.code = "<form action=\"" + action + "\">" + child.code + "</form>";
+        html.code = "<form action=\"" + action +" \" accept-charset=\"UTF-8\" method=\"post\">" + child.code + "</form>";
 
         return html;
     }
 
     public Html submit(String value) {
         Html html = new Html();
-        html.code = "<input type=\"submit\" value=\"" + value + "\">";
+        html.code = "<input type=\"submit\" value=\"" + value + "\"/>";
 
         return html;
     }
