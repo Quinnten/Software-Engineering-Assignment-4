@@ -34,6 +34,10 @@ public class JRouter {
         String key = verb + path;
         String route = routes.get(key);
 
+        if (!routes.contains(key)) {
+            throw new UnsupportedOperationException();
+        }
+
         try {
             String[] arr = route.split("#");
             System.out.println(arr[0] + " is the class name");
